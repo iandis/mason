@@ -457,17 +457,28 @@ class BricksJson {
 }
 
 String _encodedGitDir(GitPath git, String commitHash) {
-  const maxPathLength = 255;
-  final name = p.basenameWithoutExtension(git.url);
-  final remainingDirLength =
-      maxPathLength - 2 /* 2 underscores */ - name.length - commitHash.length;
-  final path = git.url.replaceAll(r'\', '/');
-  var url = base64.encode(utf8.encode(path));
-  if (url.length > remainingDirLength) {
-    url = url.substring(0, remainingDirLength);
+  // Max Path Length: 255
+
+  const maxNameLength = 50;
+  var name = p.basenameWithoutExtension(git.url);
+  if (name.length > maxNameLength) {
+    name = name.substring(0, maxNameLength);
   }
 
-  return '${name}_${url}_$commitHash';
+  const maxUrlLength = 153;
+  final path = git.url.replaceAll(r'\', '/');
+  var url = base64.encode(utf8.encode(path));
+  if (url.length > maxUrlLength) {
+    url = url.substring(0, maxUrlLength);
+  }
+
+  const maxCommitHashLength = 50;
+  var commitId = commitHash;
+  if (commitId.length > maxCommitHashLength) {
+    commitId = commitId.substring(0, maxCommitHashLength);
+  }
+
+  return '${name}_${url}_$commitId';
 }
 
 void _verifyMasonVersionConstraint(BrickYaml brickYaml) {
