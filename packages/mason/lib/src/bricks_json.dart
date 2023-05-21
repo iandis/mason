@@ -457,9 +457,17 @@ class BricksJson {
 }
 
 String _encodedGitDir(GitPath git, String commitHash) {
+  const maxPathLength = 255;
+  final remainingDirLength =
+      maxPathLength - 2 /* 2 underscores */ - commitHash.length;
+
   final name = p.basenameWithoutExtension(git.url);
   final path = git.url.replaceAll(r'\', '/');
-  final url = base64.encode(utf8.encode(path));
+  var url = base64.encode(utf8.encode(path));
+  if (url.length > remainingDirLength) {
+    url = url.substring(0, remainingDirLength);
+  }
+
   return '${name}_${url}_$commitHash';
 }
 
